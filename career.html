@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ulrevix Careers — Build Something World-Class</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+/* ── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  --black:        #000000;
+  --deep:         #05020d;
+  --purple-dark:  #2d0b6b;
+  --purple-mid:   #5b1fd4;
+  --purple-core:  #7c3aed;
+  --purple-bright:#9b5cf6;
+  --purple-glow:  #b47cff;
+  --purple-light: #c4a3ff;
+  --violet:       #a855f7;
+  --pink:         #d946ef;
+  --white:        #ffffff;
+  --off-white:    #f0eaff;
+  --muted:        #8b7aa8;
+  --border:       rgba(124,58,237,0.2);
+  --card-bg:      rgba(255,255,255,0.025);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{
+  background:var(--black);
+  color:var(--white);
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  overflow-x:hidden;
+  cursor:none;
+  min-height:100vh;
+}
+
+/* ── CURSOR ────────────────────────────────────────────────── */
+#cursor{position:fixed;width:10px;height:10px;background:var(--purple-glow);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .2s,height .2s;}
+#cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(180,124,255,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .15s ease-out,width .25s,height .25s;}
+.cursor-grow #cursor{width:20px;height:20px;}
+.cursor-grow #cursor-ring{width:60px;height:60px;border-color:rgba(180,124,255,.8);}
+
+/* ── HERO CANVAS ───────────────────────────────────────────── */
+#hero-canvas{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;pointer-events:none;
+  opacity:.8;
+}
+
+/* ── NOISE ─────────────────────────────────────────────────── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:.4;
+}
+
+/* ── NAV ───────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:24px 60px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(to bottom,rgba(0,0,0,.75),transparent);
+  backdrop-filter:blur(0px);
+}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-logo-wordmark{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.15em;background:linear-gradient(135deg,var(--purple-bright),var(--purple-glow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-back{
+  font-family:'Syne',sans-serif;font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;
+  display:flex;align-items:center;gap:8px;
+  transition:color .2s;
+}
+.nav-back:hover{color:var(--purple-light);}
+.nav-back svg{width:16px;height:16px;}
+.nav-admin-btn{
+  font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:9px 22px;border:1px solid rgba(124,58,237,.35);color:var(--muted);
+  background:transparent;cursor:pointer;transition:all .25s;
+}
+.nav-admin-btn:hover{border-color:var(--purple-glow);color:var(--purple-light);}
+
+/* ── HERO ──────────────────────────────────────────────────── */
+#hero{
+  position:relative;z-index:10;
+  height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:0 40px;overflow:hidden;
+}
+.hero-label{
+  font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--purple-glow);margin-bottom:24px;
+  display:flex;align-items:center;gap:14px;
+  opacity:0;animation:fadeUp .8s ease forwards .3s;
+}
+.hero-label::before,.hero-label::after{content:'';width:28px;height:1px;background:var(--purple-glow);opacity:.6;}
+.hero-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(5rem,13vw,12rem);
+  line-height:.9;letter-spacing:-.01em;
+  margin-bottom:20px;
+  opacity:0;animation:fadeUp .9s ease forwards .5s;
+}
+.hero-title .line1{display:block;background:linear-gradient(135deg,var(--white) 30%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-title .line2{display:block;background:linear-gradient(135deg,var(--purple-bright),var(--purple-glow),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 40px rgba(155,92,246,.5));}
+.hero-sub{
+  font-size:clamp(.95rem,1.6vw,1.15rem);line-height:1.75;
+  color:rgba(240,234,255,.6);max-width:580px;margin-bottom:48px;
+  opacity:0;animation:fadeUp .9s ease forwards .7s;
+}
+.hero-scroll-cue{
+  position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  opacity:0;animation:fadeUp 1s ease forwards 1.2s;
+}
+.hero-scroll-cue span{font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);}
+.scroll-bar{width:1px;height:48px;background:linear-gradient(to bottom,var(--purple-glow),transparent);animation:scrollPulse 1.8s ease-in-out infinite;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
+.orb-a{width:500px;height:500px;background:radial-gradient(circle,rgba(124,58,237,.18),transparent);top:-120px;right:-80px;animation:orbFloat 7s ease-in-out infinite;}
+.orb-b{width:380px;height:380px;background:radial-gradient(circle,rgba(217,70,239,.12),transparent);bottom:-80px;left:5%;animation:orbFloat 9s ease-in-out infinite reverse;}
+
+/* ── MARQUEE ───────────────────────────────────────────────── */
+.marquee-strip{
+  position:relative;z-index:10;overflow:hidden;
+  background:rgba(124,58,237,.07);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:16px 0;
+}
+.marquee-track{display:flex;animation:marquee 20s linear infinite;white-space:nowrap;}
+.marquee-item{
+  font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.2em;
+  color:var(--purple-bright);padding:0 36px;flex-shrink:0;
+  display:flex;align-items:center;gap:36px;
+}
+.marquee-item::after{content:'◆';font-size:.45rem;color:var(--purple-glow);opacity:.6;}
+
+/* ── JOB BOARD SECTION ─────────────────────────────────────── */
+#board{
+  position:relative;z-index:10;
+  padding:100px 60px 140px;
+  max-width:1400px;margin:0 auto;
+}
+.board-header{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  margin-bottom:60px;flex-wrap:wrap;gap:24px;
+}
+.board-title-block .section-label{
+  font-family:'Syne',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--purple-glow);margin-bottom:16px;
+  display:flex;align-items:center;gap:14px;
+}
+.board-title-block .section-label::before{content:'';width:22px;height:1px;background:var(--purple-glow);}
+.board-title-block h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.8rem,5vw,4.5rem);line-height:1;
+}
+.board-title-block h2 em{font-style:normal;background:linear-gradient(135deg,var(--purple-bright),var(--purple-glow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.board-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.filter-pill{
+  font-family:'Syne',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.08em;
+  padding:8px 18px;border:1px solid rgba(124,58,237,.25);color:var(--muted);
+  background:transparent;cursor:pointer;transition:all .2s;
+}
+.filter-pill:hover,.filter-pill.active{border-color:var(--purple-glow);color:var(--purple-light);background:rgba(124,58,237,.1);}
+.search-box{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(124,58,237,.2);
+  padding:8px 16px;
+}
+.search-box input{
+  background:transparent;border:none;outline:none;
+  font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--off-white);
+  width:200px;
+}
+.search-box input::placeholder{color:var(--muted);}
+.search-box svg{width:15px;height:15px;color:var(--muted);flex-shrink:0;}
+
+/* ── JOB GRID ──────────────────────────────────────────────── */
+#jobs-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:16px;
+}
+.job-card{
+  background:var(--card-bg);
+  border:1px solid rgba(124,58,237,.18);
+  padding:28px 24px;
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:border-color .3s,transform .3s,box-shadow .3s;
+  display:flex;flex-direction:column;gap:14px;
+}
+.job-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--purple-core),var(--purple-glow),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.job-card::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%,rgba(124,58,237,.07),transparent 65%);
+  opacity:0;transition:opacity .3s;
+}
+.job-card:hover{border-color:rgba(155,92,246,.5);transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.5);}
+.job-card:hover::before,.job-card:hover::after{opacity:1;}
+.job-card-dept{
+  font-family:'Syne',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--purple-glow);
+}
+.job-card-title{
+  font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;
+  color:var(--off-white);line-height:1.35;
+}
+.job-card-meta{
+  display:flex;flex-direction:column;gap:5px;margin-top:auto;
+}
+.job-card-location,.job-card-type{
+  font-size:.78rem;color:var(--muted);
+  display:flex;align-items:center;gap:6px;
+}
+.job-card-location svg,.job-card-type svg{width:12px;height:12px;flex-shrink:0;opacity:.7;}
+.job-card-arrow{
+  position:absolute;bottom:20px;right:20px;
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .3s,transform .3s;
+}
+.job-card:hover .job-card-arrow{background:rgba(124,58,237,.35);transform:rotate(-45deg);}
+.job-card-arrow svg{width:12px;height:12px;color:var(--purple-light);}
+.job-badge{
+  display:inline-block;font-family:'Syne',sans-serif;font-size:.6rem;font-weight:700;
+  letter-spacing:.15em;text-transform:uppercase;padding:3px 10px;
+  background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);
+  color:var(--purple-light);
+}
+.job-badge.new{background:rgba(217,70,239,.15);border-color:rgba(217,70,239,.35);color:#e879f9;}
+.no-jobs{
+  grid-column:1/-1;text-align:center;padding:80px 40px;
+  color:var(--muted);font-size:1rem;
+}
+.no-jobs span{display:block;font-family:'Bebas Neue',sans-serif;font-size:3rem;color:rgba(124,58,237,.2);margin-bottom:16px;}
+
+/* ── JOB DETAIL MODAL ──────────────────────────────────────── */
+#modal-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(16px);
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:40px 24px;overflow-y:auto;
+  opacity:0;pointer-events:none;transition:opacity .35s;
+}
+#modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{
+  width:100%;max-width:820px;
+  background:rgba(8,3,20,.95);
+  border:1px solid rgba(124,58,237,.3);
+  position:relative;overflow:hidden;
+  transform:translateY(40px) scale(.97);
+  transition:transform .4s cubic-bezier(.22,1,.36,1);
+}
+#modal-overlay.open .modal-box{transform:translateY(0) scale(1);}
+.modal-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--purple-dark),var(--purple-core),var(--purple-glow),var(--pink),var(--purple-glow),var(--purple-core),var(--purple-dark));
+}
+.modal-canvas-wrap{position:absolute;top:0;right:0;width:320px;height:200px;pointer-events:none;opacity:.6;}
+#modal-canvas{width:100%;height:100%;}
+.modal-header{padding:44px 48px 28px;}
+.modal-dept{font-family:'Syne',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.35em;text-transform:uppercase;color:var(--purple-glow);margin-bottom:14px;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1;margin-bottom:20px;background:linear-gradient(135deg,var(--white),var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.modal-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+.modal-tag{
+  font-family:'Syne',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.1em;
+  padding:5px 14px;border:1px solid rgba(124,58,237,.3);color:var(--muted);
+  display:flex;align-items:center;gap:6px;
+}
+.modal-tag svg{width:11px;height:11px;}
+.modal-body{padding:0 48px 48px;border-top:1px solid rgba(124,58,237,.12);}
+.modal-body-inner{padding-top:32px;}
+.modal-section-title{
+  font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--purple-glow);margin-bottom:16px;margin-top:32px;
+  display:flex;align-items:center;gap:10px;
+}
+.modal-section-title::before{content:'';width:16px;height:1px;background:var(--purple-glow);}
+.modal-text{font-size:.95rem;line-height:1.85;color:rgba(240,234,255,.65);}
+.modal-list{list-style:none;display:flex;flex-direction:column;gap:2px;margin-top:4px;}
+.modal-list li{
+  font-size:.92rem;line-height:1.6;color:rgba(240,234,255,.65);
+  padding:10px 14px;border-left:2px solid rgba(124,58,237,.25);
+  display:flex;gap:10px;align-items:flex-start;
+  transition:border-color .2s,color .2s;
+}
+.modal-list li:hover{border-color:var(--purple-core);color:var(--off-white);}
+.modal-list li::before{content:'→';color:var(--purple-glow);font-size:.85rem;flex-shrink:0;margin-top:1px;}
+.modal-apply-bar{
+  padding:28px 48px;
+  background:rgba(124,58,237,.06);
+  border-top:1px solid rgba(124,58,237,.15);
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+}
+.modal-apply-note{font-size:.85rem;color:var(--muted);line-height:1.5;max-width:400px;}
+.btn-apply{
+  font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:14px 36px;background:linear-gradient(135deg,var(--purple-core),var(--purple-bright));
+  color:var(--white);border:none;cursor:pointer;
+  position:relative;overflow:hidden;transition:box-shadow .3s,transform .2s;
+  box-shadow:0 0 28px rgba(124,58,237,.45);text-decoration:none;display:inline-block;
+}
+.btn-apply:hover{transform:translateY(-2px);box-shadow:0 0 55px rgba(155,92,246,.7);}
+.modal-close{
+  position:absolute;top:20px;right:20px;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.04);border:1px solid rgba(124,58,237,.25);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .2s,border-color .2s;z-index:10;
+}
+.modal-close:hover{background:rgba(124,58,237,.2);border-color:var(--purple-glow);}
+.modal-close svg{width:14px;height:14px;color:var(--muted);}
+
+/* ── ADMIN LOGIN MODAL ─────────────────────────────────────── */
+#admin-login{
+  position:fixed;inset:0;z-index:600;
+  background:rgba(0,0,0,.9);backdrop-filter:blur(20px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+#admin-login.open{opacity:1;pointer-events:all;}
+.login-box{
+  width:100%;max-width:420px;
+  background:rgba(8,3,20,.98);border:1px solid rgba(124,58,237,.35);
+  padding:52px 44px;position:relative;
+}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--purple-core),var(--purple-glow),transparent);}
+.login-title{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:.05em;margin-bottom:8px;background:linear-gradient(135deg,var(--white),var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.login-sub{font-size:.85rem;color:var(--muted);margin-bottom:36px;line-height:1.5;}
+.form-field{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.form-field label{font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--purple-light);}
+.form-field input{
+  background:rgba(255,255,255,.03);border:1px solid rgba(124,58,237,.25);
+  padding:13px 16px;font-family:'DM Sans',sans-serif;font-size:.9rem;
+  color:var(--off-white);outline:none;transition:border-color .2s;
+}
+.form-field input:focus{border-color:var(--purple-glow);}
+.login-err{font-size:.82rem;color:#f87171;margin-bottom:16px;display:none;}
+.btn-login{
+  width:100%;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:16px;background:linear-gradient(135deg,var(--purple-core),var(--purple-bright));
+  color:var(--white);border:none;cursor:pointer;
+  transition:box-shadow .3s,transform .2s;box-shadow:0 0 24px rgba(124,58,237,.4);
+  margin-top:8px;
+}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 0 44px rgba(155,92,246,.65);}
+.login-close{
+  position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;
+  color:var(--muted);font-size:1.2rem;transition:color .2s;
+}
+.login-close:hover{color:var(--white);}
+
+/* ── ADMIN PANEL ───────────────────────────────────────────── */
+#admin-panel{
+  position:fixed;inset:0;z-index:550;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(18px);
+  overflow-y:auto;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+#admin-panel.open{opacity:1;pointer-events:all;}
+.admin-inner{max-width:900px;margin:0 auto;padding:80px 40px 120px;}
+.admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px;}
+.admin-title{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:.05em;background:linear-gradient(135deg,var(--white),var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.admin-close-btn{
+  font-family:'Syne',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  padding:9px 22px;border:1px solid rgba(124,58,237,.35);color:var(--muted);
+  background:transparent;cursor:pointer;transition:all .2s;
+}
+.admin-close-btn:hover{border-color:var(--purple-glow);color:var(--purple-light);}
+.admin-jobs-list{display:flex;flex-direction:column;gap:10px;margin-bottom:40px;}
+.admin-job-row{
+  background:rgba(255,255,255,.02);border:1px solid rgba(124,58,237,.15);
+  padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.admin-job-info .adj-title{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;color:var(--off-white);}
+.admin-job-info .adj-meta{font-size:.78rem;color:var(--muted);margin-top:3px;}
+.admin-job-actions{display:flex;gap:8px;}
+.btn-edit,.btn-delete{
+  font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:7px 16px;border:1px solid;cursor:pointer;transition:all .2s;background:transparent;
+}
+.btn-edit{border-color:rgba(124,58,237,.35);color:var(--purple-light);}
+.btn-edit:hover{background:rgba(124,58,237,.15);border-color:var(--purple-glow);}
+.btn-delete{border-color:rgba(220,38,38,.35);color:#f87171;}
+.btn-delete:hover{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.6);}
+.admin-section-title{
+  font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--purple-glow);margin-bottom:24px;
+  display:flex;align-items:center;gap:12px;
+}
+.admin-section-title::before{content:'';width:18px;height:1px;background:var(--purple-glow);}
+/* Job Form */
+.job-form{background:rgba(255,255,255,.02);border:1px solid rgba(124,58,237,.2);padding:36px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.form-row.single{grid-template-columns:1fr;}
+.form-group{display:flex;flex-direction:column;gap:8px;}
+.form-group label{font-family:'Syne',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--purple-light);}
+.form-group input,.form-group select,.form-group textarea{
+  background:rgba(255,255,255,.03);border:1px solid rgba(124,58,237,.2);
+  padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:.88rem;
+  color:var(--off-white);outline:none;transition:border-color .2s;
+  resize:vertical;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--purple-glow);}
+.form-group select option{background:#0d0720;}
+.form-group textarea{min-height:100px;}
+.form-hint{font-size:.73rem;color:var(--muted);margin-top:4px;font-style:italic;}
+.form-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+.btn-save{
+  font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:13px 32px;background:linear-gradient(135deg,var(--purple-core),var(--purple-bright));
+  color:var(--white);border:none;cursor:pointer;transition:box-shadow .3s,transform .2s;
+  box-shadow:0 0 20px rgba(124,58,237,.4);
+}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 0 40px rgba(155,92,246,.6);}
+.btn-cancel-form{
+  font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:13px 28px;border:1px solid rgba(124,58,237,.3);color:var(--muted);
+  background:transparent;cursor:pointer;transition:all .2s;
+}
+.btn-cancel-form:hover{border-color:var(--purple-glow);color:var(--purple-light);}
+.btn-add-new{
+  font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:11px 28px;border:1px solid rgba(124,58,237,.3);color:var(--purple-light);
+  background:rgba(124,58,237,.06);cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:8px;margin-bottom:32px;
+}
+.btn-add-new:hover{border-color:var(--purple-glow);background:rgba(124,58,237,.15);}
+.btn-add-new svg{width:14px;height:14px;}
+.form-hidden{display:none;}
+
+/* ── GLOW LINE ─────────────────────────────────────────────── */
+.glow-line{height:1px;background:linear-gradient(90deg,transparent,var(--purple-core) 30%,var(--purple-glow) 50%,var(--purple-core) 70%,transparent);opacity:.35;position:relative;z-index:10;}
+
+/* ── INFO SECTIONS ─────────────────────────────────────────── */
+.info-section{position:relative;z-index:10;padding:120px 0;}
+.info-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+.info-inner{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:0 60px;}
+
+.section-label-sm{
+  font-family:'Syne',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--purple-glow);margin-bottom:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-label-sm::before{content:'';width:18px;height:1px;background:var(--purple-glow);}
+
+.info-heading{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.6rem,5vw,4.2rem);line-height:1.02;letter-spacing:.02em;
+}
+.info-heading em{font-style:normal;background:linear-gradient(135deg,var(--purple-bright),var(--purple-glow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+.info-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:80px;align-items:start;margin-bottom:60px;}
+.info-body{font-size:.98rem;line-height:1.85;color:rgba(240,234,255,.62);margin-bottom:18px;}
+.info-callout{
+  font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;line-height:1.6;
+  color:var(--off-white);padding:24px 28px;
+  border-left:3px solid var(--purple-core);
+  background:rgba(124,58,237,.07);margin-top:8px;
+}
+
+/* stat row */
+.stat-row{
+  display:flex;align-items:center;
+  background:rgba(255,255,255,.02);border:1px solid rgba(124,58,237,.15);
+  padding:28px 40px;gap:0;flex-wrap:wrap;
+}
+.stat-item{flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;background:linear-gradient(135deg,var(--purple-bright),var(--purple-glow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-family:'Syne',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+.stat-divider{width:1px;height:50px;background:rgba(124,58,237,.2);flex-shrink:0;margin:0 20px;}
+
+/* why grid */
+.why-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+}
+.why-card{
+  background:rgba(255,255,255,.02);border:1px solid rgba(124,58,237,.16);
+  padding:30px 26px;position:relative;overflow:hidden;
+  transition:border-color .3s,transform .3s,box-shadow .3s;
+}
+.why-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--purple-core),var(--purple-glow),transparent);opacity:0;transition:opacity .3s;}
+.why-card:hover{border-color:rgba(155,92,246,.45);transform:translateY(-4px);box-shadow:0 18px 48px rgba(0,0,0,.45);}
+.why-card:hover::before{opacity:1;}
+.why-icon{width:36px;height:36px;margin-bottom:16px;color:var(--purple-bright);}
+.why-icon svg{width:100%;height:100%;}
+.why-card-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--off-white);margin-bottom:10px;}
+.why-card-body{font-size:.85rem;line-height:1.7;color:var(--muted);}
+
+/* remote layout */
+.remote-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
+.remote-globe-wrap{
+  margin-top:36px;position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+#globe-canvas{width:200px;height:200px;display:block;}
+.globe-label{font-family:'Syne',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--purple-glow);}
+
+/* ideal list */
+.ideal-list{list-style:none;display:flex;flex-direction:column;gap:2px;}
+.ideal-list li{
+  display:flex;align-items:flex-start;gap:18px;
+  padding:22px 20px;
+  background:rgba(255,255,255,.02);border:1px solid rgba(124,58,237,.12);
+  transition:background .2s,border-color .2s;
+}
+.ideal-list li:hover{background:rgba(124,58,237,.07);border-color:rgba(124,58,237,.3);}
+.ideal-icon{width:32px;height:32px;flex-shrink:0;color:var(--purple-bright);margin-top:2px;}
+.ideal-icon svg{width:100%;height:100%;}
+.ideal-title{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:var(--off-white);margin-bottom:5px;}
+.ideal-body{font-size:.82rem;line-height:1.6;color:var(--muted);}
+
+/* pathway steps */
+.pathway-steps{display:flex;flex-direction:column;gap:2px;}
+.pathway-step{
+  display:flex;gap:22px;align-items:flex-start;
+  padding:22px 24px;
+  background:rgba(255,255,255,.02);border:1px solid rgba(124,58,237,.12);
+  position:relative;overflow:hidden;
+  transition:background .25s,border-color .25s;
+}
+.pathway-step::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--purple-core),var(--purple-bright));transform:scaleY(0);transition:transform .3s;transform-origin:top;}
+.pathway-step:hover{background:rgba(124,58,237,.06);border-color:rgba(124,58,237,.3);}
+.pathway-step:hover::before{transform:scaleY(1);}
+.pathway-step-num{
+  font-family:'Bebas Neue',sans-serif;font-size:2.2rem;line-height:1;
+  background:linear-gradient(135deg,rgba(124,58,237,.35),rgba(155,92,246,.2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  flex-shrink:0;width:42px;
+}
+.pathway-step-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--off-white);margin-bottom:6px;}
+.pathway-step-body{font-size:.85rem;line-height:1.65;color:var(--muted);}
+
+/* apply banner */
+.apply-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  margin-top:60px;padding:40px 48px;
+  background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.25);
+  position:relative;overflow:hidden;
+}
+.apply-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 50%,rgba(124,58,237,.12),transparent 60%);pointer-events:none;}
+.apply-banner-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.05em;background:linear-gradient(135deg,var(--white),var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.apply-banner-sub{font-size:.9rem;color:rgba(240,234,255,.6);margin-top:4px;line-height:1.55;max-width:480px;}
+
+/* responsive */
+@media(max-width:1024px){
+  .info-grid{grid-template-columns:1fr;gap:40px;}
+  .why-grid{grid-template-columns:repeat(2,1fr);}
+  .remote-layout{grid-template-columns:1fr;gap:48px;}
+  .stat-row{padding:20px 24px;}
+  .apply-banner{padding:28px 24px;}
+}
+@media(max-width:640px){
+  .why-grid{grid-template-columns:1fr;}
+  .info-inner{padding:0 20px;}
+  .info-section{padding:80px 0;}
+}
+
+/* ── FOOTER ────────────────────────────────────────────────── */
+footer{
+  border-top:1px solid rgba(124,58,237,.15);
+  padding:40px 60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:10;flex-wrap:wrap;gap:16px;
+}
+.footer-brand{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.15em;background:linear-gradient(135deg,var(--purple-bright),var(--purple-glow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.footer-copy{font-size:.75rem;color:rgba(139,122,168,.45);letter-spacing:.05em;}
+
+/* ── ANIMATIONS ────────────────────────────────────────────── */
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@keyframes scrollPulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+@keyframes orbFloat{0%,100%{transform:translate(0,0);}33%{transform:translate(-18px,-25px);}66%{transform:translate(12px,-12px);}}
+
+/* ── REVEAL ────────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .75s ease,transform .75s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-d1{transition-delay:.1s;} .reveal-d2{transition-delay:.2s;}
+.reveal-d3{transition-delay:.3s;} .reveal-d4{transition-delay:.4s;}
+
+/* ── BG 3D CANVAS BEHIND BOARD ─────────────────────────────── */
+#board-canvas{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+}
+#board-wrap{position:relative;}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:18px 20px;}
+  #board{padding:80px 20px 100px;}
+  .board-header{flex-direction:column;align-items:flex-start;}
+  .modal-header,.modal-body,.modal-apply-bar{padding-left:24px;padding-right:24px;}
+  .admin-inner{padding:60px 20px 80px;}
+  .form-row{grid-template-columns:1fr;}
+  footer{padding:32px 20px;}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="hero-canvas"></canvas>
+
+<!-- ── NAV ──────────────────────────────────────────────────── -->
+<nav>
+  <a href="ulrevix.html" class="nav-logo">
+    <svg width="34" height="34" viewBox="0 0 60 60" fill="none">
+      <path d="M30 8L14 20L14 40L30 52L46 40L46 20Z" stroke="url(#ng)" stroke-width="2" fill="none"/>
+      <path d="M20 16L30 46L40 16" stroke="url(#ng2)" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <defs>
+        <linearGradient id="ng" x1="0" y1="0" x2="60" y2="60"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#b47cff"/></linearGradient>
+        <linearGradient id="ng2" x1="0" y1="0" x2="40" y2="60"><stop offset="0%" stop-color="#9b5cf6"/><stop offset="100%" stop-color="#d946ef"/></linearGradient>
+      </defs>
+    </svg>
+    <span class="nav-logo-wordmark">ULREVIX</span>
+  </a>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back to Main
+  </a>
+  <button class="nav-admin-btn" onclick="openAdminLogin()">Admin Login</button>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <br>
+  <p class="hero-label">Open Positions</p>
+  <h1 class="hero-title">
+    <span class="line1">Shape the</span>
+    <span class="line2">Future.</span>
+  </h1>
+  <p class="hero-sub">Join Ulrevix at the ground floor. We are looking for exceptional builders, storytellers, and strategic thinkers ready to define the next era of digital media.</p>
+  <div class="hero-scroll-cue">
+    <span>View Roles</span>
+    <div class="scroll-bar"></div>
+  </div>
+</section>
+
+<!-- ── MARQUEE ───────────────────────────────────────────────── -->
+<div class="marquee-strip">
+  <div class="marquee-track" id="mq">
+    <div class="marquee-item">Content Creation</div>
+    <div class="marquee-item">Video Production</div>
+    <div class="marquee-item">Growth Strategy</div>
+    <div class="marquee-item">Creative Direction</div>
+    <div class="marquee-item">Script Writing</div>
+    <div class="marquee-item">Graphic Design</div>
+    <div class="marquee-item">Research & Analytics</div>
+    <div class="marquee-item">Operations</div>
+    <div class="marquee-item">Content Creation</div>
+    <div class="marquee-item">Video Production</div>
+    <div class="marquee-item">Growth Strategy</div>
+    <div class="marquee-item">Creative Direction</div>
+    <div class="marquee-item">Script Writing</div>
+    <div class="marquee-item">Graphic Design</div>
+    <div class="marquee-item">Research & Analytics</div>
+    <div class="marquee-item">Operations</div>
+  </div>
+</div>
+
+<!-- ── JOB BOARD ─────────────────────────────────────────────── -->
+<div id="board-wrap" style="position:relative;overflow:hidden;">
+  <canvas id="board-canvas"></canvas>
+  <section id="board">
+    <div class="board-header reveal">
+      <div class="board-title-block">
+        <p class="section-label">We Are Hiring</p>
+        <h2>Open <em>Roles.</em></h2>
+      </div>
+      <div class="board-controls">
+        <div class="search-box">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l3 3" stroke-linecap="round"/></svg>
+          <input type="text" id="search-input" placeholder="Search roles…" oninput="filterJobs()">
+        </div>
+        <button class="filter-pill active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-pill" onclick="setFilter('Full-Time',this)">Full-Time</button>
+        <button class="filter-pill" onclick="setFilter('Part-Time',this)">Part-Time</button>
+        <button class="filter-pill" onclick="setFilter('Contract',this)">Contract</button>
+      </div>
+    </div>
+    <div id="jobs-grid"></div>
+  </section>
+</div>
+
+<div class="glow-line"></div>
+
+<!-- ════════════════════════════════════════════════════════════
+     ABOUT ULREVIX
+     ════════════════════════════════════════════════════════════ -->
+<section id="about-section" class="info-section" style="position:relative;overflow:hidden;">
+  <canvas class="info-canvas" id="about-canvas"></canvas>
+  <div class="info-inner">
+    <div class="info-grid reveal">
+      <div class="info-left">
+        <p class="section-label-sm">Who We Are</p>
+        <h2 class="info-heading">About <em>Ulrevix</em></h2>
+      </div>
+      <div class="info-right">
+        <p class="info-body">Ulrevix is a next-generation digital storytelling company building high-impact media channels across technology, business, finance, psychology, culture, and the human mind.</p>
+        <p class="info-body">We are built on one mission: to create stories that capture attention, shape perspectives, and scale globally.</p>
+        <p class="info-body">From cinematic storytelling to data-driven narratives, we are building a modern media startup designed for scale, innovation, and impact.</p>
+        <div class="info-callout reveal reveal-d2">
+          This is more than an internship — it is an opportunity to become part of a founding team and help shape the future of digital storytelling from the ground up.
+        </div>
+      </div>
+    </div>
+    <!-- floating stat bars -->
+    <div class="stat-row reveal reveal-d3">
+      <div class="stat-item"><span class="stat-num">Global</span><span class="stat-label">Reach &amp; Audience</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-num">Multi</span><span class="stat-label">Channel Network</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-num">100%</span><span class="stat-label">Remote-First</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-num">Day 1</span><span class="stat-label">Real Ownership</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- ════════════════════════════════════════════════════════════
+     WHY JOIN ULREVIX
+     ════════════════════════════════════════════════════════════ -->
+<section id="why-section" class="info-section" style="position:relative;overflow:hidden;">
+  <canvas class="info-canvas" id="why-canvas"></canvas>
+  <div class="info-inner">
+    <div class="info-grid reveal">
+      <div class="info-left">
+        <p class="section-label-sm">The Difference</p>
+        <h2 class="info-heading">Why Join <em>Ulrevix</em></h2>
+      </div>
+      <div class="info-right">
+        <p class="info-body">At Ulrevix, interns are not treated as passive assistants. You will have the opportunity to take real ownership, lead ideas, and build the kind of experience that accelerates careers.</p>
+      </div>
+    </div>
+    <div class="why-grid">
+      <div class="why-card reveal reveal-d1">
+        <div class="why-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="why-card-title">Take Meaningful Ownership</p>
+        <p class="why-card-body">Lead ideas and initiatives. Your contributions shape the company, not just fill a task list.</p>
+      </div>
+      <div class="why-card reveal reveal-d2">
+        <div class="why-icon">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M7 10h6M10 7v6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <p class="why-card-title">Build Real-World Experience</p>
+        <p class="why-card-body">Startup experience that strengthens your CV, LinkedIn profile, and future career opportunities.</p>
+      </div>
+      <div class="why-card reveal reveal-d3">
+        <div class="why-icon">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <p class="why-card-title">Performance-Based References</p>
+        <p class="why-card-body">Clear references and recommendations tied to your impact — not just attendance.</p>
+      </div>
+      <div class="why-card reveal reveal-d1">
+        <div class="why-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M4 16L16 4M16 4H9M16 4v7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="why-card-title">Global Founding Team Visibility</p>
+        <p class="why-card-body">Gain visibility as a recognised member of a global founding creative team.</p>
+      </div>
+      <div class="why-card reveal reveal-d2">
+        <div class="why-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M3 17l4-8 4 4 3-5 3 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="why-card-title">Clear Career Pathway</p>
+        <p class="why-card-body">Exceptional contributors step into long-term leadership and paid opportunities as we scale.</p>
+      </div>
+      <div class="why-card reveal reveal-d3">
+        <div class="why-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 3a7 7 0 1 1 0 14A7 7 0 0 1 10 3Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 7v3l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <p class="why-card-title">Portfolio-Ready Output</p>
+        <p class="why-card-body">Build work you are proud to showcase in every future application and interview.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- ════════════════════════════════════════════════════════════
+     REMOTE-FIRST / WHO IT'S FOR
+     ════════════════════════════════════════════════════════════ -->
+<section id="remote-section" class="info-section" style="position:relative;overflow:hidden;background:rgba(124,58,237,.03);">
+  <canvas class="info-canvas" id="remote-canvas"></canvas>
+  <div class="info-inner">
+    <div class="remote-layout">
+      <div class="remote-left reveal reveal-d1">
+        <p class="section-label-sm">Where We Work</p>
+        <h2 class="info-heading">Remote-First.<br><em>Global Opportunity.</em></h2>
+        <p class="info-body">Ulrevix is proudly remote-first, and we are sourcing talent from all over the world. No matter where you are located — if you are ambitious, curious, and ready to grow — we welcome your application.</p>
+        <div class="remote-globe-wrap">
+          <canvas id="globe-canvas"></canvas>
+          <div class="globe-label">We Are Global</div>
+        </div>
+      </div>
+      <div class="remote-right reveal reveal-d2">
+        <p class="section-label-sm" style="margin-bottom:24px;">This Role Is Ideal For</p>
+        <ul class="ideal-list">
+          <li>
+            <div class="ideal-icon">
+              <svg viewBox="0 0 18 18" fill="none"><path d="M9 2a4 4 0 1 1 0 8A4 4 0 0 1 9 2ZM3 16c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="ideal-title">Students</p>
+              <p class="ideal-body">Gain real-world media startup experience alongside your studies.</p>
+            </div>
+          </li>
+          <li>
+            <div class="ideal-icon">
+              <svg viewBox="0 0 18 18" fill="none"><path d="M4 14V8l5-5 5 5v6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="7" y="10" width="4" height="4" stroke="currentColor" stroke-width="1.4"/></svg>
+            </div>
+            <div>
+              <p class="ideal-title">Recent Graduates</p>
+              <p class="ideal-body">Turn your degree into real portfolio achievements and career momentum.</p>
+            </div>
+          </li>
+          <li>
+            <div class="ideal-icon">
+              <svg viewBox="0 0 18 18" fill="none"><rect x="2" y="5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M6 5V4a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="ideal-title">Early-Career Professionals</p>
+              <p class="ideal-body">Accelerate your growth inside a fast-moving media company.</p>
+            </div>
+          </li>
+          <li>
+            <div class="ideal-icon">
+              <svg viewBox="0 0 18 18" fill="none"><path d="M9 2l1.5 4h4l-3.3 2.4 1.3 4L9 10 5.5 12.4l1.3-4L3.5 6h4Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <p class="ideal-title">Aspiring Storytellers &amp; Researchers</p>
+              <p class="ideal-body">Shape narratives that reach millions and define your craft at scale.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- ════════════════════════════════════════════════════════════
+     GROWTH PATHWAY
+     ════════════════════════════════════════════════════════════ -->
+<section id="growth-section" class="info-section" style="position:relative;overflow:hidden;">
+  <canvas class="info-canvas" id="growth-canvas"></canvas>
+  <div class="info-inner">
+    <div class="info-grid reveal">
+      <div class="info-left">
+        <p class="section-label-sm">Your Future</p>
+        <h2 class="info-heading">Growth <em>Pathway.</em></h2>
+        <p class="info-body" style="margin-top:20px;">This internship is intentionally designed to help you build the credentials, experience, and confidence that accelerate the rest of your career.</p>
+      </div>
+      <div class="info-right">
+        <div class="pathway-steps">
+          <div class="pathway-step reveal reveal-d1">
+            <div class="pathway-step-num">01</div>
+            <div class="pathway-step-content">
+              <p class="pathway-step-title">Measurable Achievements</p>
+              <p class="pathway-step-body">Work that shows up on your resume with real numbers, milestones, and outcomes — not vague job descriptions.</p>
+            </div>
+          </div>
+          <div class="pathway-step reveal reveal-d2">
+            <div class="pathway-step-num">02</div>
+            <div class="pathway-step-content">
+              <p class="pathway-step-title">Real Startup Experience</p>
+              <p class="pathway-step-body">Operate inside a founding team environment where decisions are fast, stakes are real, and learning is accelerated.</p>
+            </div>
+          </div>
+          <div class="pathway-step reveal reveal-d3">
+            <div class="pathway-step-num">03</div>
+            <div class="pathway-step-content">
+              <p class="pathway-step-title">Cross-Functional Collaboration</p>
+              <p class="pathway-step-body">Work across creative, strategy, production, and operations — building a rare breadth of professional skills.</p>
+            </div>
+          </div>
+          <div class="pathway-step reveal reveal-d4">
+            <div class="pathway-step-num">04</div>
+            <div class="pathway-step-content">
+              <p class="pathway-step-title">Leadership Exposure</p>
+              <p class="pathway-step-body">Lead initiatives, run projects, and develop the decision-making instincts that define exceptional leaders.</p>
+            </div>
+          </div>
+          <div class="pathway-step reveal reveal-d1">
+            <div class="pathway-step-num">05</div>
+            <div class="pathway-step-content">
+              <p class="pathway-step-title">Portfolio-Ready Contributions</p>
+              <p class="pathway-step-body">Your work here should become something you are proud to showcase in every future application and interview.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- CTA banner -->
+    <div class="apply-banner reveal">
+      <div class="apply-banner-text">
+        <p class="apply-banner-title">Apply Now</p>
+        <p class="apply-banner-sub">Become part of the founding team building the future of digital storytelling.</p>
+      </div>
+      <a href="#board" class="btn-apply" style="white-space:nowrap;">View Open Roles →</a>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer>
+  <span class="footer-brand">ULREVIX</span>
+  <span class="footer-copy">© 2026 Ulrevix. All rights reserved.</span>
+</footer>
+
+<!-- ════════════════════════════════════════════════════════════
+     JOB DETAIL MODAL
+     ════════════════════════════════════════════════════════════ -->
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-canvas-wrap"><canvas id="modal-canvas"></canvas></div>
+    <button class="modal-close" onclick="closeModal()">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="modal-header">
+      <p class="modal-dept" id="m-dept"></p>
+      <h2 class="modal-title" id="m-title"></h2>
+      <div class="modal-tags" id="m-tags"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-body-inner" id="m-body"></div>
+    </div>
+    <div class="modal-apply-bar">
+      <p class="modal-apply-note">Ready to make your mark? We would love to hear from you. Fill in our application form and our team will be in touch.</p>
+      <a href="#" class="btn-apply" id="m-apply-btn">Apply Now →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     ADMIN LOGIN MODAL
+     ════════════════════════════════════════════════════════════ -->
+<div id="admin-login">
+  <div class="login-box">
+    <button class="login-close" onclick="closeAdminLogin()">✕</button>
+    <h2 class="login-title">Admin Access</h2>
+    <p class="login-sub">Restricted to authorised Ulrevix administrators only.</p>
+    <div class="form-field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="admin@ulrevix.com">
+    </div>
+    <div class="form-field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••••••">
+    </div>
+    <p class="login-err" id="login-err">Invalid credentials. Please try again.</p>
+    <button class="btn-login" onclick="attemptLogin()">Access Panel</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     ADMIN PANEL
+     ════════════════════════════════════════════════════════════ -->
+<div id="admin-panel">
+  <div class="admin-inner">
+    <div class="admin-header">
+      <h2 class="admin-title">Job Manager</h2>
+      <div style="display:flex;gap:10px;">
+        <button class="admin-close-btn" onclick="closeAdminPanel()">✕ Close Panel</button>
+        <button class="admin-close-btn" onclick="logoutAdmin()" style="border-color:rgba(220,38,38,.35);color:#f87171;">⏻ Logout</button>
+      </div>
+    </div>
+
+    <!-- existing jobs list -->
+    <div id="admin-jobs-list" class="admin-jobs-list"></div>
+
+    <!-- add new btn -->
+    <button class="btn-add-new" onclick="showForm(null)">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Add New Role
+    </button>
+
+    <!-- form -->
+    <div id="job-form-wrap" class="form-hidden">
+      <p class="admin-section-title" id="form-mode-label">Add New Role</p>
+      <div class="job-form">
+        <input type="hidden" id="f-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Job Title *</label>
+            <input type="text" id="f-title" placeholder="e.g. Senior Script Writer">
+          </div>
+          <div class="form-group">
+            <label>Department *</label>
+            <input type="text" id="f-dept" placeholder="e.g. Creative">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Location *</label>
+            <input type="text" id="f-location" placeholder="e.g. Remote (Global)">
+          </div>
+          <div class="form-group">
+            <label>Type *</label>
+            <select id="f-type">
+              <option value="Full-Time">Full-Time</option>
+              <option value="Part-Time">Part-Time</option>
+              <option value="Contract">Contract</option>
+              <option value="Internship">Internship</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Experience Level</label>
+            <select id="f-level">
+              <option value="Entry Level">Entry Level</option>
+              <option value="Mid Level">Mid Level</option>
+              <option value="Senior Level">Senior Level</option>
+              <option value="Lead / Manager">Lead / Manager</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Apply Email / Link</label>
+            <input type="text" id="f-apply" placeholder="careers@ulrevix.com">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label>Role Overview</label>
+            <textarea id="f-overview" placeholder="Brief description of the role and its purpose at Ulrevix…" rows="4"></textarea>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label>Key Responsibilities</label>
+            <textarea id="f-responsibilities" placeholder="One responsibility per line…" rows="5"></textarea>
+            <span class="form-hint">Enter one item per line. Each line becomes a list item.</span>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label>Requirements</label>
+            <textarea id="f-requirements" placeholder="One requirement per line…" rows="5"></textarea>
+            <span class="form-hint">Enter one item per line.</span>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label>What We Offer (optional)</label>
+            <textarea id="f-offer" placeholder="One benefit per line…" rows="4"></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Badge Label (optional)</label>
+            <input type="text" id="f-badge" placeholder="e.g. NEW  or  URGENT">
+          </div>
+          <div class="form-group">
+            <label>Badge Style</label>
+            <select id="f-badge-type">
+              <option value="">Default (purple)</option>
+              <option value="new">Highlight (pink)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-save" onclick="saveJob()">Save Role</button>
+          <button class="btn-cancel-form" onclick="cancelForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCRIPTS
+     ════════════════════════════════════════════════════════════ -->
+<script>
+// ═══════════════════════════════════════════════
+// CURSOR
+// ═══════════════════════════════════════════════
+const cur = document.getElementById('cursor');
+const curR = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function ac(){
+  rx+=(mx-rx)*.15; ry+=(my-ry)*.15;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+  curR.style.left=rx+'px'; curR.style.top=ry+'px';
+  requestAnimationFrame(ac);
+})();
+function addCursorGrow(el){el.addEventListener('mouseenter',()=>document.body.classList.add('cursor-grow'));el.addEventListener('mouseleave',()=>document.body.classList.remove('cursor-grow'));}
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let jobs = JSON.parse(localStorage.getItem('ulrevix_jobs')||'null') || [
+  {
+    id:'j1',title:'Senior Script Writer',dept:'Creative',location:'Remote (Global)',type:'Full-Time',level:'Senior Level',
+    apply:'careers@ulrevix.com',badge:'HIRING',badgeType:'new',
+    overview:'We are looking for an exceptional script writer who can transform complex ideas into engaging, cinematic narratives. You will craft the voice of Ulrevix across multiple high-impact channels, shaping how millions of people engage with our content.',
+    responsibilities:'Write long-form and short-form scripts across tech, business, finance, and culture topics\nResearch topics thoroughly and translate complex ideas into compelling stories\nAdapt writing style to fit each channel\'s unique tone and audience\nCollaborate with editors and creative directors on content direction\nDeliver high-quality drafts consistently within production timelines\nIteratively improve scripts based on performance data',
+    requirements:'Proven experience writing for YouTube channels or similar digital media\nStrong research skills and ability to make complex topics accessible\nExceptional command of English language and storytelling structure\nAbility to write for multiple niches and tonal registers\nSelf-directed with excellent time management\nPortfolio of published script or content work',
+    offer:'Fully remote and flexible schedule\nFront-row seat at a fast-scaling media company\nDirect pathway to Creative Lead roles\nPerformance bonuses tied to channel growth\nCollaborative, high-ownership team culture'
+  },
+  {
+    id:'j2',title:'Video Editor',dept:'Production',location:'Remote (Global)',type:'Full-Time',level:'Mid Level',
+    apply:'careers@ulrevix.com',badge:'',badgeType:'',
+    overview:'Join our production team to craft visually stunning, high-retention videos that captivate global audiences. You will be responsible for transforming raw footage and assets into polished, cinematic content that reflects the Ulrevix standard of excellence.',
+    responsibilities:'Edit long-form and short-form video content across multiple channels\nApply motion graphics, transitions, and visual effects to elevate quality\nMaintain consistent brand identity across all video output\nSync audio, captions, and voiceovers with precision\nOptimise video pacing for maximum audience retention\nMeet weekly production targets without sacrificing quality',
+    requirements:'2+ years of professional video editing experience\nProficiency in Adobe Premiere Pro, After Effects, or equivalent\nStrong understanding of YouTube and social media video formats\nEye for visual storytelling and aesthetic quality\nAbility to handle multiple projects simultaneously\nPortfolio demonstrating range and quality of previous work',
+    offer:'Remote-first, flexible environment\nLeadership pathway to Head of Production\nCreative autonomy within a supportive team\nRegular performance reviews and advancement opportunities'
+  },
+  {
+    id:'j3',title:'Growth & Distribution Analyst',dept:'Strategy',location:'Remote (Global)',type:'Full-Time',level:'Mid Level',
+    apply:'careers@ulrevix.com',badge:'NEW',badgeType:'new',
+    overview:'We need a data-driven strategist who understands what makes content explode. You will analyse channel performance, identify growth levers, and drive the distribution strategy that turns Ulrevix into a dominant media network.',
+    responsibilities:'Monitor and analyse channel metrics across all platforms daily\nIdentify content and format trends driving growth in target niches\nDevelop and test distribution and publishing strategies\nProvide weekly performance reports and strategic recommendations\nCollaborate with the content team to optimise titles, thumbnails, and SEO\nBuild systems to track, measure, and improve content performance at scale',
+    requirements:'Strong understanding of YouTube analytics and content strategy\nExperience with social media growth and distribution tactics\nData literacy — comfortable working with dashboards and spreadsheets\nStrategic thinker with a track record of measurable results\nSelf-starter who takes initiative and works independently\nPassion for digital media and emerging content trends',
+    offer:'High-visibility role with direct impact on company growth\nClear path to Head of Growth\nFull remote flexibility\nCompetitive performance incentives'
+  },
+  {
+    id:'j4',title:'Graphic Designer & Thumbnail Artist',dept:'Creative',location:'Remote (Global)',type:'Part-Time',level:'Mid Level',
+    apply:'careers@ulrevix.com',badge:'',badgeType:'',
+    overview:'Thumbnails win the click. As our lead Graphic Designer, you will design the visual hooks that drive millions of views. You will define the visual identity of Ulrevix across all channels, creating designs that are bold, cinematic, and impossible to scroll past.',
+    responsibilities:'Design high-converting thumbnails for all Ulrevix channels\nCreate channel artwork, end screens, and branded templates\nMaintain and evolve the Ulrevix visual identity system\nCollaborate with editors and strategists on visual direction\nIterate rapidly based on CTR and performance data\nDeliver multiple design variants for A/B testing',
+    requirements:'Strong portfolio of YouTube thumbnail and graphic design work\nProficiency in Adobe Photoshop, Illustrator, or Figma\nUnderstanding of thumbnail psychology and click-through optimisation\nFast turnaround capability without sacrificing quality\nCreative vision with a strong aesthetic sensibility\nAbility to execute consistently within brand guidelines',
+    offer:'Creative freedom within a defined visual system\nDirect collaboration with creative leadership\nFlexible part-time arrangement\nGrowth into full-time Design Lead position'
+  }
+];
+let currentFilter = 'all';
+let adminLoggedIn = false;
+let editingId = null;
+
+function saveJobs(){localStorage.setItem('ulrevix_jobs',JSON.stringify(jobs));}
+
+// ═══════════════════════════════════════════════
+// RENDER JOBS
+// ═══════════════════════════════════════════════
+function renderJobs(){
+  const grid = document.getElementById('jobs-grid');
+  const q = document.getElementById('search-input').value.toLowerCase();
+  let filtered = jobs.filter(j=>{
+    const matchFilter = currentFilter==='all' || j.type===currentFilter;
+    const matchSearch = !q || j.title.toLowerCase().includes(q) || j.dept.toLowerCase().includes(q) || j.location.toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+  if(!filtered.length){
+    grid.innerHTML=`<div class="no-jobs"><span>¬</span>No roles match your search right now.<br>Check back soon — we are always growing.</div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(j=>`
+    <div class="job-card reveal" onclick="openModal('${j.id}')" data-id="${j.id}">
+      <p class="job-card-dept">${j.dept}</p>
+      ${j.badge?`<span class="job-badge ${j.badgeType||''}">${j.badge}</span>`:''}
+      <p class="job-card-title">${j.title}</p>
+      <div class="job-card-meta">
+        <span class="job-card-location">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 1a3 3 0 0 1 3 3c0 2.5-3 7-3 7S3 6.5 3 4a3 3 0 0 1 3-3Z"/><circle cx="6" cy="4" r="1"/></svg>
+          ${j.location}
+        </span>
+        <span class="job-card-type">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="3" width="10" height="7" rx="1"/><path d="M4 3V2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1"/></svg>
+          ${j.type} · ${j.level}
+        </span>
+      </div>
+      <div class="job-card-arrow">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 10L10 2M4 2h6v6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  `).join('');
+  // re-observe reveals
+  document.querySelectorAll('.job-card.reveal').forEach(el=>revealObserver.observe(el));
+  // cursor grow on cards
+  document.querySelectorAll('.job-card').forEach(addCursorGrow);
+}
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  renderJobs();
+}
+function filterJobs(){renderJobs();}
+
+// ═══════════════════════════════════════════════
+// JOB DETAIL MODAL
+// ═══════════════════════════════════════════════
+let modalRenderer, modalScene, modalCam, modalAnimId;
+function openModal(id){
+  const j = jobs.find(x=>x.id===id);
+  if(!j)return;
+  document.getElementById('m-dept').textContent = j.dept;
+  document.getElementById('m-title').textContent = j.title;
+  // tags
+  document.getElementById('m-tags').innerHTML = `
+    <span class="modal-tag"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 1a3 3 0 0 1 3 3c0 2.5-3 7-3 7S3 6.5 3 4a3 3 0 0 1 3-3Z"/><circle cx="6" cy="4" r="1"/></svg>${j.location}</span>
+    <span class="modal-tag"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="3" width="10" height="7" rx="1"/><path d="M4 3V2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1"/></svg>${j.type}</span>
+    <span class="modal-tag"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 1l1.2 2.4L10 4l-2 2 .5 2.8L6 7.5l-2.5 1.3L4 6 2 4l2.8-.6Z"/></svg>${j.level}</span>
+    ${j.badge?`<span class="modal-tag job-badge ${j.badgeType||''}">${j.badge}</span>`:''}
+  `;
+  // body
+  let body = '';
+  if(j.overview){
+    body+=`<p class="modal-section-title">Role Overview</p><p class="modal-text">${j.overview}</p>`;
+  }
+  if(j.responsibilities){
+    body+=`<p class="modal-section-title">Key Responsibilities</p><ul class="modal-list">${j.responsibilities.split('\n').filter(l=>l.trim()).map(l=>`<li>${l.trim()}</li>`).join('')}</ul>`;
+  }
+  if(j.requirements){
+    body+=`<p class="modal-section-title">What We Are Looking For</p><ul class="modal-list">${j.requirements.split('\n').filter(l=>l.trim()).map(l=>`<li>${l.trim()}</li>`).join('')}</ul>`;
+  }
+  if(j.offer){
+    body+=`<p class="modal-section-title">What We Offer</p><ul class="modal-list">${j.offer.split('\n').filter(l=>l.trim()).map(l=>`<li>${l.trim()}</li>`).join('')}</ul>`;
+  }
+  document.getElementById('m-body').innerHTML = body;
+  // apply
+  const applyBtn = document.getElementById('m-apply-btn');
+   applyBtn.href = 'https://forms.gle/bcgayKqKjDMsL6Zr9';
+  applyBtn.target = '_blank';
+  applyBtn.rel = 'noopener noreferrer';
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  initModalCanvas();
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  if(modalAnimId){cancelAnimationFrame(modalAnimId);modalAnimId=null;}
+}
+function handleOverlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+function initModalCanvas(){
+  const c = document.getElementById('modal-canvas');
+  if(modalRenderer){modalRenderer.dispose();}
+  const w=c.offsetWidth||300, h=c.offsetHeight||180;
+  modalRenderer = new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});
+  modalRenderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  modalRenderer.setSize(w,h,false);
+  modalScene = new THREE.Scene();
+  modalCam = new THREE.PerspectiveCamera(60,w/h,0.1,100);
+  modalCam.position.z=5;
+  // icosahedron
+  const ico = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.5,1),
+    new THREE.MeshBasicMaterial({color:0x7c3aed,wireframe:true,transparent:true,opacity:.22})
+  );
+  modalScene.add(ico);
+  // particles
+  const pg=new THREE.BufferGeometry(), pp=new Float32Array(300*3);
+  for(let i=0;i<300;i++){pp[i*3]=(Math.random()-.5)*8;pp[i*3+1]=(Math.random()-.5)*5;pp[i*3+2]=(Math.random()-.5)*3;}
+  pg.setAttribute('position',new THREE.BufferAttribute(pp,3));
+  modalScene.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0xb47cff,size:.06,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false})));
+  let t=0;
+  function ml(){
+    modalAnimId=requestAnimationFrame(ml);
+    t+=.008; ico.rotation.y=t*.4; ico.rotation.x=t*.2;
+    modalRenderer.render(modalScene,modalCam);
+  }
+  ml();
+}
+
+// ═══════════════════════════════════════════════
+// ADMIN AUTH
+// ═══════════════════════════════════════════════
+const ADMIN_EMAIL='hello.ulrevix@gmail.com';
+const ADMIN_PASS='#JoinUlrevixNow2026';
+
+function openAdminLogin(){
+  if(adminLoggedIn){openAdminPanel();return;}
+  document.getElementById('admin-login').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeAdminLogin(){
+  document.getElementById('admin-login').classList.remove('open');
+  document.body.style.overflow='';
+}
+function attemptLogin(){
+  const em=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-password').value;
+  const err=document.getElementById('login-err');
+  if(em===ADMIN_EMAIL && pw===ADMIN_PASS){
+    adminLoggedIn=true;
+    err.style.display='none';
+    closeAdminLogin();
+    // update nav btn
+    document.querySelector('.nav-admin-btn').textContent='Admin Panel';
+    openAdminPanel();
+  } else {
+    err.style.display='block';
+  }
+}
+document.getElementById('login-email').addEventListener('keydown',e=>{if(e.key==='Enter')attemptLogin();});
+document.getElementById('login-password').addEventListener('keydown',e=>{if(e.key==='Enter')attemptLogin();});
+
+// ═══════════════════════════════════════════════
+// ADMIN PANEL
+// ═══════════════════════════════════════════════
+function logoutAdmin(){
+  adminLoggedIn = false;
+  closeAdminPanel();
+  document.querySelector('.nav-admin-btn').textContent = 'Admin Login';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-err').style.display = 'none';
+}
+function openAdminPanel(){
+  renderAdminList();
+  document.getElementById('admin-panel').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeAdminPanel(){
+  document.getElementById('admin-panel').classList.remove('open');
+  document.body.style.overflow='';
+  cancelForm();
+}
+function renderAdminList(){
+  const el=document.getElementById('admin-jobs-list');
+  if(!jobs.length){el.innerHTML='<p style="color:var(--muted);font-size:.9rem;padding:16px 0;">No roles yet. Add your first role below.</p>';return;}
+  el.innerHTML=jobs.map(j=>`
+    <div class="admin-job-row">
+      <div class="admin-job-info">
+        <p class="adj-title">${j.title}</p>
+        <p class="adj-meta">${j.dept} · ${j.type} · ${j.location}</p>
+      </div>
+      <div class="admin-job-actions">
+        <button class="btn-edit" onclick="showForm('${j.id}')">Edit</button>
+        <button class="btn-delete" onclick="deleteJob('${j.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+function deleteJob(id){
+  if(!confirm('Delete this role? This cannot be undone.'))return;
+  jobs=jobs.filter(j=>j.id!==id);
+  saveJobs(); renderAdminList(); renderJobs();
+}
+function showForm(id){
+  editingId=id;
+  document.getElementById('job-form-wrap').classList.remove('form-hidden');
+  document.getElementById('form-mode-label').textContent = id ? 'Edit Role' : 'Add New Role';
+  if(id){
+    const j=jobs.find(x=>x.id===id);
+    document.getElementById('f-id').value=j.id;
+    document.getElementById('f-title').value=j.title;
+    document.getElementById('f-dept').value=j.dept;
+    document.getElementById('f-location').value=j.location;
+    document.getElementById('f-type').value=j.type;
+    document.getElementById('f-level').value=j.level;
+    document.getElementById('f-apply').value=j.apply||'';
+    document.getElementById('f-overview').value=j.overview||'';
+    document.getElementById('f-responsibilities').value=j.responsibilities||'';
+    document.getElementById('f-requirements').value=j.requirements||'';
+    document.getElementById('f-offer').value=j.offer||'';
+    document.getElementById('f-badge').value=j.badge||'';
+    document.getElementById('f-badge-type').value=j.badgeType||'';
+  } else {
+    ['f-id','f-title','f-dept','f-location','f-apply','f-overview','f-responsibilities','f-requirements','f-offer','f-badge'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f-type').value='Full-Time';
+    document.getElementById('f-level').value='Entry Level';
+    document.getElementById('f-badge-type').value='';
+  }
+  document.getElementById('job-form-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function cancelForm(){
+  editingId=null;
+  document.getElementById('job-form-wrap').classList.add('form-hidden');
+}
+function saveJob(){
+  const title=document.getElementById('f-title').value.trim();
+  const dept=document.getElementById('f-dept').value.trim();
+  const location=document.getElementById('f-location').value.trim();
+  if(!title||!dept||!location){alert('Please fill in Title, Department, and Location.');return;}
+  const data={
+    id: editingId || ('j'+Date.now()),
+    title, dept, location,
+    type:  document.getElementById('f-type').value,
+    level: document.getElementById('f-level').value,
+    apply: document.getElementById('f-apply').value.trim(),
+    overview: document.getElementById('f-overview').value.trim(),
+    responsibilities: document.getElementById('f-responsibilities').value.trim(),
+    requirements: document.getElementById('f-requirements').value.trim(),
+    offer: document.getElementById('f-offer').value.trim(),
+    badge: document.getElementById('f-badge').value.trim().toUpperCase(),
+    badgeType: document.getElementById('f-badge-type').value,
+  };
+  if(editingId){
+    const idx=jobs.findIndex(j=>j.id===editingId);
+    jobs[idx]=data;
+  } else {
+    jobs.push(data);
+  }
+  saveJobs();
+  renderAdminList();
+  renderJobs();
+  cancelForm();
+}
+
+// ═══════════════════════════════════════════════
+// REVEAL OBSERVER
+// ═══════════════════════════════════════════════
+const revealObserver=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+// ═══════════════════════════════════════════════
+// HERO THREE.JS
+// ═══════════════════════════════════════════════
+const heroCanvas=document.getElementById('hero-canvas');
+const heroR=new THREE.WebGLRenderer({canvas:heroCanvas,antialias:true,alpha:true});
+heroR.setPixelRatio(Math.min(devicePixelRatio,2));
+heroR.setSize(innerWidth,innerHeight);
+heroR.setClearColor(0x000000,0);
+const heroScene=new THREE.Scene();
+const heroCam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000);
+heroCam.position.z=5;
+
+// Particles
+const hpCount=2400, hpGeo=new THREE.BufferGeometry();
+const hpPos=new Float32Array(hpCount*3), hpCol=new Float32Array(hpCount*3);
+for(let i=0;i<hpCount;i++){
+  hpPos[i*3]=(Math.random()-.5)*22; hpPos[i*3+1]=(Math.random()-.5)*22; hpPos[i*3+2]=(Math.random()-.5)*10;
+  const t=Math.random();
+  if(t<.5){hpCol[i*3]=.48+Math.random()*.2;hpCol[i*3+1]=.23+Math.random()*.1;hpCol[i*3+2]=.93;}
+  else{hpCol[i*3]=.61+Math.random()*.2;hpCol[i*3+1]=.36+Math.random()*.15;hpCol[i*3+2]=.98;}
+}
+hpGeo.setAttribute('position',new THREE.BufferAttribute(hpPos,3));
+hpGeo.setAttribute('color',new THREE.BufferAttribute(hpCol,3));
+const hpMat=new THREE.PointsMaterial({size:.04,vertexColors:true,transparent:true,opacity:.65,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true});
+const hParticles=new THREE.Points(hpGeo,hpMat);
+heroScene.add(hParticles);
+
+// Wireframe shapes
+const hSphere=new THREE.Mesh(new THREE.SphereGeometry(1.4,24,24),new THREE.MeshBasicMaterial({color:0x7c3aed,wireframe:true,transparent:true,opacity:.06}));
+heroScene.add(hSphere);
+const hIco=new THREE.Mesh(new THREE.IcosahedronGeometry(2,1),new THREE.MeshBasicMaterial({color:0x5b1fd4,wireframe:true,transparent:true,opacity:.04}));
+heroScene.add(hIco);
+
+let hmx=0,hmy=0,hscr=0;
+document.addEventListener('mousemove',e=>{hmx=(e.clientX/innerWidth-.5)*2;hmy=-(e.clientY/innerHeight-.5)*2;});
+window.addEventListener('scroll',()=>{hscr=scrollY;});
+
+let ht=0;
+(function heroLoop(){
+  requestAnimationFrame(heroLoop);
+  ht+=.004;
+  hParticles.rotation.y+=.0007+hmx*.0004;
+  hParticles.rotation.x+=.0003+hmy*.0004;
+  hSphere.rotation.y+=.0015; hSphere.rotation.z+=.001;
+  hIco.rotation.y-=.001; hIco.rotation.x+=.0008;
+  heroCam.position.x+=(hmx*.3-heroCam.position.x)*.02;
+  heroCam.position.y+=(hmy*.2-heroCam.position.y)*.02;
+  heroCanvas.style.transform=`translateY(${hscr*.3}px)`;
+  hpMat.opacity=Math.max(.25,.65-hscr*.0007);
+  heroR.render(heroScene,heroCam);
+})();
+window.addEventListener('resize',()=>{
+  heroCam.aspect=innerWidth/innerHeight; heroCam.updateProjectionMatrix();
+  heroR.setSize(innerWidth,innerHeight);
+});
+
+// ═══════════════════════════════════════════════
+// BOARD BACKGROUND THREE.JS
+// ═══════════════════════════════════════════════
+(function(){
+  const c=document.getElementById('board-canvas');
+  const wrap=document.getElementById('board-wrap');
+  const r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});
+  r.setClearColor(0x000000,0);
+  function resize(){
+    const w=wrap.offsetWidth,h=wrap.offsetHeight;
+    r.setSize(w,h,false);
+    c.style.width=w+'px'; c.style.height=h+'px';
+  }
+  resize();
+  new ResizeObserver(resize).observe(wrap);
+  const s=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(60,wrap.offsetWidth/wrap.offsetHeight,.1,300);
+  cam.position.z=14;
+
+  // Large slow torus
+  const tor=new THREE.Mesh(new THREE.TorusGeometry(8,.08,8,90),new THREE.MeshBasicMaterial({color:0x5b1fd4,wireframe:true,transparent:true,opacity:.07}));
+  tor.rotation.x=1.1; tor.position.set(6,-2,-5);
+  s.add(tor);
+  const tor2=new THREE.Mesh(new THREE.TorusGeometry(5,.05,6,70),new THREE.MeshBasicMaterial({color:0x7c3aed,wireframe:true,transparent:true,opacity:.06}));
+  tor2.rotation.y=.7; tor2.position.set(-8,4,-6);
+  s.add(tor2);
+
+  // Floating icosahedrons
+  const icos=[];
+  [[8,3,-3],[- 7,-4,-4],[5,-6,-2],[-4,6,-5],[9,-1,-6]].forEach(([x,y,z])=>{
+    const m=new THREE.Mesh(new THREE.IcosahedronGeometry(.6+Math.random()*.6,1),new THREE.MeshBasicMaterial({color:0x7c3aed,wireframe:true,transparent:true,opacity:.13+Math.random()*.06}));
+    m.position.set(x,y,z); m.userData={rx:Math.random()*.02-.01,ry:Math.random()*.02-.01};
+    s.add(m); icos.push(m);
+  });
+
+  // Particle cloud
+  const pg=new THREE.BufferGeometry(), pp=new Float32Array(900*3);
+  for(let i=0;i<900;i++){pp[i*3]=(Math.random()-.5)*28;pp[i*3+1]=(Math.random()-.5)*20;pp[i*3+2]=(Math.random()-.5)*8;}
+  pg.setAttribute('position',new THREE.BufferAttribute(pp,3));
+  s.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0x9b5cf6,size:.06,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false})));
+
+  // Line web
+  const lm=new THREE.LineBasicMaterial({color:0x7c3aed,transparent:true,opacity:.05});
+  const lpts=[new THREE.Vector3(8,3,-3),new THREE.Vector3(-7,-4,-4),new THREE.Vector3(5,-6,-2),new THREE.Vector3(-4,6,-5),new THREE.Vector3(8,3,-3)];
+  s.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(lpts),lm));
+
+  let t=0;
+  (function loop(){
+    requestAnimationFrame(loop);
+    t+=.004;
+    tor.rotation.z=t*.06;
+    tor2.rotation.z=-t*.05;
+    icos.forEach(m=>{m.rotation.x+=m.userData.rx;m.rotation.y+=m.userData.ry;});
+    cam.position.x+=(hmx*1.5-cam.position.x)*.015;
+    cam.position.y+=(hmy*0.8-cam.position.y)*.015;
+    cam.aspect=wrap.offsetWidth/wrap.offsetHeight;
+    cam.updateProjectionMatrix();
+    r.render(s,cam);
+  })();
+})();
+
+// ═══════════════════════════════════════════════
+// INFO SECTION 3D CANVASES
+// ═══════════════════════════════════════════════
+function makeInfoScene(canvasId, hostId) {
+  const c = document.getElementById(canvasId);
+  const host = document.getElementById(hostId);
+  if (!c || !host) return null;
+  const r = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: true });
+  r.setClearColor(0x000000, 0);
+  r.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  function resize() {
+    const w = host.offsetWidth, h = host.offsetHeight;
+    r.setSize(w, h, false);
+    c.style.width = w + 'px'; c.style.height = h + 'px';
+  }
+  resize();
+  new ResizeObserver(resize).observe(host);
+  return r;
+}
+
+// ── About section — slow orbiting torus + particles ──────────
+(function () {
+  const r = makeInfoScene('about-canvas', 'about-section');
+  if (!r) return;
+  const s = new THREE.Scene(), host = document.getElementById('about-section');
+  const cam = new THREE.PerspectiveCamera(60, host.offsetWidth / host.offsetHeight, 0.1, 200);
+  cam.position.z = 12;
+  const tor = new THREE.Mesh(new THREE.TorusGeometry(6, 0.07, 8, 80), new THREE.MeshBasicMaterial({ color: 0x5b1fd4, wireframe: true, transparent: true, opacity: 0.09 }));
+  tor.rotation.x = 1.1; tor.position.set(5, 0, -4); s.add(tor);
+  const tor2 = new THREE.Mesh(new THREE.TorusGeometry(3.5, 0.05, 6, 60), new THREE.MeshBasicMaterial({ color: 0x7c3aed, wireframe: true, transparent: true, opacity: 0.07 }));
+  tor2.rotation.y = 0.8; tor2.position.set(-6, 2, -5); s.add(tor2);
+  const ico = new THREE.Mesh(new THREE.IcosahedronGeometry(1.4, 1), new THREE.MeshBasicMaterial({ color: 0x9b5cf6, wireframe: true, transparent: true, opacity: 0.14 }));
+  ico.position.set(-5, -2, -2); s.add(ico);
+  const pg = new THREE.BufferGeometry(), pp = new Float32Array(700 * 3);
+  for (let i = 0; i < 700; i++) { pp[i * 3] = (Math.random() - .5) * 26; pp[i * 3 + 1] = (Math.random() - .5) * 18; pp[i * 3 + 2] = (Math.random() - .5) * 8; }
+  pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+  s.add(new THREE.Points(pg, new THREE.PointsMaterial({ color: 0xb47cff, size: 0.06, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false })));
+  let t = 0;
+  (function loop() {
+    requestAnimationFrame(loop); t += 0.004;
+    tor.rotation.z = t * 0.07; tor2.rotation.z = -t * 0.06;
+    ico.rotation.y = t * 0.3; ico.rotation.x = t * 0.2;
+    cam.aspect = host.offsetWidth / host.offsetHeight; cam.updateProjectionMatrix();
+    r.render(s, cam);
+  })();
+})();
+
+// ── Why section — floating polyhedra constellation ───────────
+(function () {
+  const r = makeInfoScene('why-canvas', 'why-section');
+  if (!r) return;
+  const s = new THREE.Scene(), host = document.getElementById('why-section');
+  const cam = new THREE.PerspectiveCamera(60, host.offsetWidth / host.offsetHeight, 0.1, 200);
+  cam.position.z = 13;
+  const shapes = [];
+  [[-8, 3, -3], [7, -2, -4], [-5, -4, -2], [6, 4, -5], [0, -5, -3], [-3, 5, -4]].forEach(([x, y, z], i) => {
+    const geo = i % 3 === 0 ? new THREE.IcosahedronGeometry(0.7, 1) : i % 3 === 1 ? new THREE.OctahedronGeometry(0.6, 0) : new THREE.TetrahedronGeometry(0.7, 0);
+    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x7c3aed, wireframe: true, transparent: true, opacity: 0.13 + Math.random() * 0.06 }));
+    m.position.set(x, y, z); m.userData = { rx: (Math.random() - .5) * 0.015, ry: (Math.random() - .5) * 0.015 };
+    s.add(m); shapes.push(m);
+  });
+  const bigRing = new THREE.Mesh(new THREE.TorusGeometry(9, 0.05, 6, 100), new THREE.MeshBasicMaterial({ color: 0x5b1fd4, wireframe: true, transparent: true, opacity: 0.05 }));
+  bigRing.rotation.x = 0.5; s.add(bigRing);
+  const pg = new THREE.BufferGeometry(), pp = new Float32Array(600 * 3);
+  for (let i = 0; i < 600; i++) { pp[i * 3] = (Math.random() - .5) * 28; pp[i * 3 + 1] = (Math.random() - .5) * 20; pp[i * 3 + 2] = (Math.random() - .5) * 6; }
+  pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+  s.add(new THREE.Points(pg, new THREE.PointsMaterial({ color: 0x9b5cf6, size: 0.055, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false })));
+  let t = 0;
+  (function loop() {
+    requestAnimationFrame(loop); t += 0.004;
+    shapes.forEach(m => { m.rotation.x += m.userData.rx; m.rotation.y += m.userData.ry; });
+    bigRing.rotation.z = t * 0.04;
+    cam.aspect = host.offsetWidth / host.offsetHeight; cam.updateProjectionMatrix();
+    r.render(s, cam);
+  })();
+})();
+
+// ── Remote section — slow particle drift ─────────────────────
+(function () {
+  const r = makeInfoScene('remote-canvas', 'remote-section');
+  if (!r) return;
+  const s = new THREE.Scene(), host = document.getElementById('remote-section');
+  const cam = new THREE.PerspectiveCamera(60, host.offsetWidth / host.offsetHeight, 0.1, 200);
+  cam.position.z = 11;
+  const tor = new THREE.Mesh(new THREE.TorusGeometry(7, 0.06, 8, 90), new THREE.MeshBasicMaterial({ color: 0x7c3aed, wireframe: true, transparent: true, opacity: 0.07 }));
+  tor.rotation.x = 1.3; tor.position.set(-5, 0, -5); s.add(tor);
+  const pg = new THREE.BufferGeometry(), pp = new Float32Array(500 * 3);
+  for (let i = 0; i < 500; i++) { pp[i * 3] = (Math.random() - .5) * 24; pp[i * 3 + 1] = (Math.random() - .5) * 16; pp[i * 3 + 2] = (Math.random() - .5) * 6; }
+  pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+  s.add(new THREE.Points(pg, new THREE.PointsMaterial({ color: 0xb47cff, size: 0.055, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false })));
+  let t = 0;
+  (function loop() {
+    requestAnimationFrame(loop); t += 0.003;
+    tor.rotation.z = t * 0.05;
+    cam.aspect = host.offsetWidth / host.offsetHeight; cam.updateProjectionMatrix();
+    r.render(s, cam);
+  })();
+})();
+
+// ── Globe (inside remote section) ────────────────────────────
+(function () {
+  const c = document.getElementById('globe-canvas');
+  if (!c) return;
+  const r = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: true });
+  r.setClearColor(0x000000, 0);
+  r.setPixelRatio(Math.min(devicePixelRatio, 2));
+  r.setSize(200, 200, false);
+  const s = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  cam.position.z = 4;
+  // globe wireframe
+  const globe = new THREE.Mesh(new THREE.SphereGeometry(1.5, 24, 24), new THREE.MeshBasicMaterial({ color: 0x7c3aed, wireframe: true, transparent: true, opacity: 0.22 }));
+  s.add(globe);
+  // inner glow sphere
+  const inner = new THREE.Mesh(new THREE.SphereGeometry(1.42, 16, 16), new THREE.MeshBasicMaterial({ color: 0x5b1fd4, wireframe: false, transparent: true, opacity: 0.04 }));
+  s.add(inner);
+  // latitude rings
+  [0.3, 0, -0.3].forEach(y => {
+    const r2 = Math.sqrt(1.5 * 1.5 - y * y);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r2, 0.012, 4, 48), new THREE.MeshBasicMaterial({ color: 0x9b5cf6, transparent: true, opacity: 0.18 }));
+    ring.rotation.x = Math.PI / 2; ring.position.y = y; s.add(ring);
+  });
+  // dot markers (cities)
+  const dotGeo = new THREE.BufferGeometry();
+  const dotPos = new Float32Array(18 * 3);
+  const latLons = [[51,0],[40,-74],[35,139],[19,73],[-23,-43],[1,103],[48,2],[55,37],[-34,151],[30,31],[-26,28],[19,-99],[37,127],[41,29],[-4,39],[6,1],[14,101],[-33,-70]];
+  latLons.forEach(([lat, lon], i) => {
+    const phi = (90 - lat) * Math.PI / 180, theta = (lon + 180) * Math.PI / 180;
+    dotPos[i * 3] = 1.52 * Math.sin(phi) * Math.cos(theta);
+    dotPos[i * 3 + 1] = 1.52 * Math.cos(phi);
+    dotPos[i * 3 + 2] = 1.52 * Math.sin(phi) * Math.sin(theta);
+  });
+  dotGeo.setAttribute('position', new THREE.BufferAttribute(dotPos, 3));
+  s.add(new THREE.Points(dotGeo, new THREE.PointsMaterial({ color: 0xd946ef, size: 0.1, transparent: true, opacity: 0.9 })));
+  let t = 0;
+  (function loop() {
+    requestAnimationFrame(loop); t += 0.008;
+    globe.rotation.y = t * 0.3; inner.rotation.y = t * 0.3;
+    r.render(s, cam);
+  })();
+})();
+
+// ── Growth section — ribbon + dodecahedron ────────────────────
+(function () {
+  const r = makeInfoScene('growth-canvas', 'growth-section');
+  if (!r) return;
+  const s = new THREE.Scene(), host = document.getElementById('growth-section');
+  const cam = new THREE.PerspectiveCamera(60, host.offsetWidth / host.offsetHeight, 0.1, 200);
+  cam.position.z = 12;
+  const dod = new THREE.Mesh(new THREE.DodecahedronGeometry(2, 0), new THREE.MeshBasicMaterial({ color: 0x7c3aed, wireframe: true, transparent: true, opacity: 0.12 }));
+  dod.position.set(6, 0, -3); s.add(dod);
+  const tor = new THREE.Mesh(new THREE.TorusGeometry(4.5, 0.05, 6, 70), new THREE.MeshBasicMaterial({ color: 0x5b1fd4, wireframe: true, transparent: true, opacity: 0.07 }));
+  tor.rotation.x = 0.9; tor.position.set(6, 0, -3); s.add(tor);
+  // ribbon
+  const rbGeo = new THREE.BufferGeometry(), rbPos = new Float32Array(600 * 3);
+  for (let i = 0; i < 600; i++) {
+    const t2 = i / 599;
+    rbPos[i * 3] = (t2 - 0.5) * 22;
+    rbPos[i * 3 + 1] = Math.sin(t2 * Math.PI * 5) * 2.5 + (Math.random() - .5) * 0.4;
+    rbPos[i * 3 + 2] = Math.cos(t2 * Math.PI * 3) * 1.2 + (Math.random() - .5) * 0.3;
+  }
+  rbGeo.setAttribute('position', new THREE.BufferAttribute(rbPos, 3));
+  const ribbon = new THREE.Points(rbGeo, new THREE.PointsMaterial({ color: 0x9b5cf6, size: 0.06, transparent: true, opacity: 0.38, blending: THREE.AdditiveBlending, depthWrite: false }));
+  ribbon.position.set(0, -3, 0); s.add(ribbon);
+  const pg = new THREE.BufferGeometry(), pp = new Float32Array(500 * 3);
+  for (let i = 0; i < 500; i++) { pp[i * 3] = (Math.random() - .5) * 26; pp[i * 3 + 1] = (Math.random() - .5) * 18; pp[i * 3 + 2] = (Math.random() - .5) * 6; }
+  pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+  s.add(new THREE.Points(pg, new THREE.PointsMaterial({ color: 0xb47cff, size: 0.055, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false })));
+  let t = 0;
+  (function loop() {
+    requestAnimationFrame(loop); t += 0.005;
+    dod.rotation.y = t * 0.2; dod.rotation.x = t * 0.1;
+    tor.rotation.z = t * 0.08;
+    ribbon.rotation.z = Math.sin(t * 0.2) * 0.12;
+    ribbon.position.y = -3 + Math.sin(t * 0.3) * 0.4;
+    cam.aspect = host.offsetWidth / host.offsetHeight; cam.updateProjectionMatrix();
+    r.render(s, cam);
+  })();
+})();
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+renderJobs();
+document.querySelectorAll('a,button,.job-card,.nav-back,.nav-admin-btn,.btn-apply,.modal-close,.filter-pill').forEach(addCursorGrow);
+</script>
+</body>
+</html>
