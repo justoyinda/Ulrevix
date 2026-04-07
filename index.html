@@ -1029,8 +1029,21 @@ footer {
 <canvas id="hero-canvas"></canvas>
 
 <!-- NAV -->
- <a href="ulrevix.html" class="nav-logo">
-    <img src="logo.png" width="34" height="34" style="object-fit:contain;display:block;border-radius:4px;">
+ <a href="logo.html" class="nav-logo">
+    <svg class="nav-logo-icon" viewBox="0 0 60 60" fill="none">
+      <path d="M30 8 L14 20 L14 40 L30 52 L46 40 L46 20 Z" fill="none" stroke="url(#logoGrad)" stroke-width="2"/>
+      <path d="M20 16 L30 46 L40 16" stroke="url(#logoGrad2)" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <defs>
+        <linearGradient id="logoGrad" x1="0" y1="0" x2="60" y2="60">
+          <stop offset="0%" stop-color="#7c3aed"/>
+          <stop offset="100%" stop-color="#b47cff"/>
+        </linearGradient>
+        <linearGradient id="logoGrad2" x1="0" y1="0" x2="40" y2="60">
+          <stop offset="0%" stop-color="#9b5cf6"/>
+          <stop offset="100%" stop-color="#d946ef"/>
+        </linearGradient>
+      </defs>
+    </svg>
     <span class="nav-logo-wordmark">ULREVIX</span>
   </a>
   <div class="nav-pill">
