@@ -977,7 +977,10 @@ footer{
   <div class="admin-inner">
     <div class="admin-header">
       <h2 class="admin-title">Job Manager</h2>
-      <button class="admin-close-btn" onclick="closeAdminPanel()">✕ Close Panel</button>
+      <div style="display:flex;gap:10px;">
+        <button class="admin-close-btn" onclick="closeAdminPanel()">✕ Close Panel</button>
+        <button class="admin-close-btn" onclick="logoutAdmin()" style="border-color:rgba(220,38,38,.35);color:#f87171;">⏻ Logout</button>
+      </div>
     </div>
 
     <!-- existing jobs list -->
@@ -1338,6 +1341,15 @@ document.getElementById('login-password').addEventListener('keydown',e=>{if(e.ke
 // ═══════════════════════════════════════════════
 // ADMIN PANEL
 // ═══════════════════════════════════════════════
+
+function logoutAdmin(){
+  adminLoggedIn = false;
+  closeAdminPanel();
+  document.querySelector('.nav-admin-btn').textContent = 'Admin Login';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-err').style.display = 'none';
+}
 function openAdminPanel(){
   renderAdminList();
   document.getElementById('admin-panel').classList.add('open');
